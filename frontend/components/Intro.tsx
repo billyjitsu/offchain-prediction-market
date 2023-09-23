@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { ConnectButton, connectorsForWallets } from "@rainbow-me/rainbowkit";
-import { getAccount, fetchBalance, readContract } from "@wagmi/core";
+import { getAccount, fetchBalance, readContract,  writeContract, waitForTransaction } from "@wagmi/core";
 import {
   useAccount,
   usePrepareContractWrite,
@@ -11,41 +11,34 @@ import {
 import { ethers } from "ethers";
 import React, { useState, useEffect } from "react";
 import LoadingScreen from "./Loading";
-import type {
-  UseContractReadConfig,
-  UsePrepareContractWriteConfig,
-  UseContractWriteConfig,
-  UseContractEventConfig,
-} from "wagmi";
+import { parseEther } from "viem";
 import YoutubeContract from "../contract/contract.json";
 
 const Intro = () => {
   const { address, isConnected } = useAccount();
   const [loading, setLoading] = useState<boolean>(false);
-  const [eventHappened, setEventHappened] = useState<boolean>(false);
   const [minted, setMinted] = useState<boolean>(false);
-  const [fullHater, setHater] = useState<boolean>(false);
+  const [position, setPosition] = useState<number>(0);
 
 
-  const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+  const contractAddress = "0xFefDadb1c553a2d19ED43F6Aab0C7251470db1BA";
 
   const contractConfig = {
     address: contractAddress,
     abi: YoutubeContract.abi,
   };
 
-  const handleDepositEth = async () => {
-    const parsedEth = ethers.utils.parseEther() || 0;
-    console.log(parsedEth.toString());
-    if (addressIsConnected) {
+  const handleBet = async () => {
+    //const parsedEth = ethers.utils.parseEther() || 0;
+    console.log("Position: ", position);
       try {
         const { hash } = await writeContract({
           address: contractAddress,
-          abi,
-          functionName: "depositCollateral",
-          value: parsedEth,
-          account: connectedAddress,
-        });
+          abi: YoutubeContract.abi,
+          functionName: "placeBet",
+          args: [position], //set positions
+          value: parseEther((0.001).toString()),
+        }as any);
         setLoading(true);
         const data = await waitForTransaction({
           hash,
@@ -55,9 +48,6 @@ const Intro = () => {
       } catch (error) {
         console.log(error);
       }
-    } else {
-      alert("Connect wallet to update blockchain data");
-    }
   };
 
   useEffect(() => {}, []);
@@ -85,25 +75,25 @@ const Intro = () => {
 
                     <div className="flex justify-center items-center">
                       <div className="flex space-x-4">
-                        <button className="bg-blue-500 px-4 py-2 text-white">
+                        <button className="bg-blue-500 px-4 py-2 text-white" onClick={() => { setPosition(0); handleBet();}}>
                           1-100
                         </button>
-                        <button className="bg-blue-500 px-4 py-2 text-white">
+                        <button className="bg-blue-500 px-4 py-2 text-white"onClick={() => { setPosition(1); handleBet();}}>
                           101-1000
                         </button>
                       </div>
 
                       <div className="mx-4">
-                        <button className="bg-blue-500 px-4 py-2 text-white">
+                        <button className="bg-blue-500 px-4 py-2 text-white"onClick={() => { setPosition(2); handleBet();}}>
                           1001-5000
                         </button>
                       </div>
 
                       <div className="flex space-x-4">
-                        <button className="bg-blue-500 px-4 py-2 text-white">
+                        <button className="bg-blue-500 px-4 py-2 text-white"onClick={() => { setPosition(3); handleBet();}}>
                           5001-10000
                         </button>
-                        <button className="bg-blue-500 px-4 py-2 text-white">
+                        <button className="bg-blue-500 px-4 py-2 text-white"onClick={() => { setPosition(4); handleBet();}}>
                           10001-∞
                         </button>
                       </div>

@@ -28,10 +28,33 @@ const config: HardhatUserConfig = {
       url: process.env.MUMBAI_RPC_URL ?? '',
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
+    scrollSepolia: {
+      url: 'https://sepolia-rpc.scroll.io' || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+
   },
   etherscan: {
-    apiKey: POLYGONSCAN_API_KEY,
+    apiKey:{ 
+      //POLYGONSCAN_API_KEY,
+      scrollSepolia: 'abc',
+    },
+
+    customChains: [
+      {
+        network: "scrollSepolia",
+        chainId: 534351,
+        urls: {
+          apiURL: "https://sepolia-blockscout.scroll.io/api",
+          browserURL: "https://sepolia-blockscout.scroll.io/",
+        }, 
+      },
+    ],
   },
+
+  
+  
 };
 
 export default config;

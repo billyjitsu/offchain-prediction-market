@@ -12,7 +12,7 @@ contract TestLensApiConsumerContract is PhatRollupAnchor, Ownable {
     uint constant TYPE_RESPONSE = 0;
     uint constant TYPE_ERROR = 2;
 
-    enum Range { OneTo100, Hundred1To1000, Thousand1To5000, Five001To10000, Five001AndBeyond }
+    enum Range { OneTo100, Hundred1To1000, Thousand1To5000, Five001To10000, Ten001AndBeyond }
     
     struct Bet {
         address payable bettor;
@@ -86,7 +86,7 @@ contract TestLensApiConsumerContract is PhatRollupAnchor, Ownable {
         } else if (number >= 5001 && number <= 10000) {
             winningRange = Range.Five001To10000;
         } else {
-            winningRange = Range.Five001AndBeyond;
+            winningRange = Range.Ten001AndBeyond;
         }
         
         uint256 totalWinners = 0;

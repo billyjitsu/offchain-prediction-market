@@ -1,7 +1,8 @@
 import "@phala/pink-env";
 import { Coders } from "@phala/ethers";
+import { string } from "hardhat/internal/core/params/argumentTypes";
 
-type HexString = `0x${string}`
+type HexString = `0x${string}`;
 
 // eth abi coder
 const uintCoder = new Coders.NumberCoder(32, false, "uint256");
@@ -58,28 +59,29 @@ function stringToHex(str: string): string {
   return "0x" + hex;
 }
 
-function fetchLensApiStats(lensApi: string, profileId: string): any {
+function fetchYouTubeStats(lensApi: string, profileId: string): any {
   // profile_id should be like 0x0001
   let headers = {
     "Content-Type": "application/json",
     "User-Agent": "phat-contract",
   };
-  let query = JSON.stringify({
-    query: `query Profile {
-            profile(request: { profileId: \"${profileId}\" }) {
-                stats {
-                    totalFollowers
-                    totalFollowing
-                    totalPosts
-                    totalComments
-                    totalMirrors
-                    totalPublications
-                    totalCollects
-                }
-            }
-        }`,
-  });
-  let body = stringToHex(query);
+
+  // let query = JSON.stringify({
+  //   query: `query Profile {
+  //           profile(request: { profileId: \"${profileId}\" }) {
+  //               stats {
+  //                   totalFollowers
+  //                   totalFollowing
+  //                   totalPosts
+  //                   totalComments
+  //                   totalMirrors
+  //                   totalPublications
+  //                   totalCollects
+  //               }
+  //           }
+  //       }`,
+  // });
+  // let body = stringToHex(query);
   //
   // In Phat Function runtime, we not support async/await, you need use `pink.batchHttpRequest` to
   // send http request. The function will return an array of response.
@@ -87,15 +89,16 @@ function fetchLensApiStats(lensApi: string, profileId: string): any {
   let response = pink.batchHttpRequest(
     [
       {
-        url: lensApi,
-        method: "POST",
+        url: `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=Jfk6-lZUUvQ&key=AIzaSyBPBq9E_QfeZTNyWSbGYH8Tc0wKoiBboGc`,
+        method: "GET",
         headers,
-        body,
+        //body, //optional
         returnTextBody: true,
       },
     ],
     10000
   )[0];
+  //console.log("response",response);
   if (response.statusCode !== 200) {
     console.log(
       `Fail to read Lens api with status code: ${response.statusCode}, error: ${
@@ -105,10 +108,15 @@ function fetchLensApiStats(lensApi: string, profileId: string): any {
     throw Error.FailedToFetchData;
   }
   let respBody = response.body;
+  let respJson = JSON.parse(respBody as string);
+  // console.log("respJson",respJson);
+  let finalResp = respJson.items[0].statistics.viewCount;
+  console.log("finalResp", finalResp);
   if (typeof respBody !== "string") {
     throw Error.FailedToDecode;
   }
-  return JSON.parse(respBody);
+  //return JSON.parse(respBody);
+  return finalResp;
 }
 
 function parseProfileId(hexx: string): string {
@@ -125,27 +133,14 @@ function parseProfileId(hexx: string): string {
   return str;
 }
 
-
-//
-// Here is what you need to implemented for Phat Function, you can customize your logic with
-// JavaScript here.
-//
-// The function will be called with two parameters:
-//
-// - request: The raw payload from the contract call `request` (check the `request` function in TestLensApiConsumerConract.sol).
-//            In this example, it's a tuple of two elements: [requestId, profileId]
-// - settings: The custom settings you set with the `config_core` function of the Action Offchain Rollup Phat Contract. In
-//            this example, it just a simple text of the lens api url prefix.
-//
-// Your returns value MUST be a hex string, and it will send to your contract directly. Check the `_onMessageReceived` function in
-// TestLensApiConsumerContract.sol for more details. We suggest a tuple of three elements: [successOrNotFlag, requestId, data] as
-// the return value.
-//
 export default function main(request: HexString, settings: string): HexString {
   console.log(`handle req: ${request}`);
   let requestId, encodedProfileId;
   try {
-    [requestId, encodedProfileId] = Coders.decode([uintCoder, bytesCoder], request);
+    [requestId, encodedProfileId] = Coders.decode(
+      [uintCoder, bytesCoder],
+      request
+    );
   } catch (error) {
     console.info("Malformed request received");
     return encodeReply([TYPE_ERROR, 0, errorToCode(error as Error)]);
@@ -154,8 +149,9 @@ export default function main(request: HexString, settings: string): HexString {
   console.log(`Request received for profile ${profileId}`);
 
   try {
-    const respData = fetchLensApiStats(settings, profileId);
-    let stats = respData.data.profile.stats.totalCollects;
+    const respData = fetchYouTubeStats(settings, profileId);
+    // let stats = respData.data.profile.stats.totalCollects;
+    let stats = respData;
     console.log("response:", [TYPE_RESPONSE, requestId, stats]);
     return encodeReply([TYPE_RESPONSE, requestId, stats]);
   } catch (error) {
@@ -167,4 +163,22 @@ export default function main(request: HexString, settings: string): HexString {
       return encodeReply([TYPE_ERROR, requestId, errorToCode(error as Error)]);
     }
   }
+
+  // function sendTGMessage(msg: string) {
+  //   const strMsg = JSON.stringify(msg)
+  //   console.log(strMsg.toString())
+  //   console.log(msg.toString())
+  //   const tg_bot_http_endpoint = `https://api.telegram.org/bot6365043287:AAGd0jeyMmv1W7FJ7K_12y_PgpTQ5qFjbXw/sendMessage?chat_id=-1001986190934&text=`;
+  //   let headers = {
+  //     "Content-Type": "application/json",
+  //     "User-Agent": "phat-contract",
+  //   };
+  //   const res3 = pink.httpRequest({
+  //     url: `${tg_bot_http_endpoint}\n${msg}`,
+  //     method: "POST",
+  //     headers,
+  //     returnTextBody: true,
+  //   });
+  //   console.info(res3);
+  // }
 }

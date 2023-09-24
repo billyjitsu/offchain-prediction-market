@@ -58,6 +58,7 @@ contract TestLensApiConsumerContract is PhatRollupAnchor, Ownable {
             emit ResponseReceived(id, requests[id], data);
             delete requests[id];
             console.log("Response received: %s", data);
+            executeBets(data);
         } else if (respType == TYPE_ERROR) {
             emit ErrorReceived(id, requests[id], data);
             delete requests[id];
@@ -74,7 +75,7 @@ contract TestLensApiConsumerContract is PhatRollupAnchor, Ownable {
         bets.push(newBet);
     }
 
-    function executeBets(uint256 number) internal {
+    function executeBets(uint256 number) public {
         Range winningRange;
         console.log("Number: %s", number);
         if (number >= 1 && number <= 100) {

@@ -10,14 +10,13 @@ We create a TypeScript function, referred to as a "phat function", that allows u
 
 In this example, we are taking bets for different ranges of how many views the video would get. Players that choose the right range win the pot when the API is called.
 
-## Getting Started
 
-To get started with this project, you will need to have a basic understanding of TypeScript, Polkadot, EVM chains, and smart contracts. Further details on the implementation and usage will be provided as the project progresses.
+1. **Contract Address:**
+   - [0xFefDadb1c553a2d19ED43F6Aab0C7251470db1BA](https://sepolia-blockscout.scroll.io/address/0xFefDadb1c553a2d19ED43F6Aab0C7251470db1BA/transactions#address-tabs)
 
-## Contributing
+2. **Relayer:**
+   - [0x5bc77AfbDf5335D21101ab47Bcb95b940097e596](https://sepolia-blockscout.scroll.io/address/0x5bc77AfbDf5335D21101ab47Bcb95b940097e596)
 
-Feel free to contribute to this project by submitting pull requests or raising issues. We appreciate your support and collaboration.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+3. **Phat Function Polkadot:**
+   - [0x7610d151dc4f428dc155c87fdcb476337f34d7d0bf2923efe8f2db3d579e6a5e/0](https://bricks-poc5.phala.network/workflows/0x7610d151dc4f428dc155c87fdcb476337f34d7d0bf2923efe8f2db3d579e6a5e/0)
+   - *Note: Needs a wallet signer. Image included in sub.*

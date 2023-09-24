@@ -74,7 +74,7 @@ contract TestLensApiConsumerContract is PhatRollupAnchor, Ownable {
         bets.push(newBet);
     }
 
-    function executeBets(uint256 number) public {
+    function executeBets(uint256 number) internal {
         Range winningRange;
         console.log("Number: %s", number);
         if (number >= 1 && number <= 100) {

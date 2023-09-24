@@ -14,23 +14,36 @@ import {
   useContractWrite,
   useContractRead,
 } from "wagmi";
-import { ethers } from "ethers";
 import React, { useState, useEffect } from "react";
 import LoadingScreen from "./Loading";
 import { parseEther } from "viem";
 import YoutubeContract from "../contract/contract.json";
+import { send } from "process";
 
 const Intro = () => {
   const { address, isConnected } = useAccount();
   const [loading, setLoading] = useState<boolean>(false);
   const [minted, setMinted] = useState<boolean>(false);
   const [position, setPosition] = useState<number>(0);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [youtubeId, setYoutubeId] = useState<string>("");
 
   const contractAddress = "0xFefDadb1c553a2d19ED43F6Aab0C7251470db1BA";
 
   const contractConfig = {
     address: contractAddress,
     abi: YoutubeContract.abi,
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+    setYoutubeId(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    // Handle the submission of the YouTube ID here
+    sendRequest();
+    console.log("YouTube ID:", inputValue);
   };
 
   const handleBet = async (position: number) => {
@@ -56,9 +69,29 @@ const Intro = () => {
     }
   };
 
-  useEffect(() => {
-    handleBet(position);
-  }, [position]);
+  const sendRequest = async () => {
+    try {
+      const { hash } = await writeContract({
+        address: contractAddress,
+        abi: YoutubeContract.abi,
+        functionName: "request",
+        args: [youtubeId], 
+      });
+      setLoading(true);
+      await waitForTransaction({
+        hash,
+      });
+
+      setLoading(false);
+      setMinted(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // useEffect(() => {
+  //   handleBet(position);
+  // }, [position]);
 
   return (
     <div className="bg-black h-screen w-full ">
@@ -89,7 +122,7 @@ const Intro = () => {
                               className="bg-blue-500 px-4 py-2 text-white rounded-full"
                               onClick={() => {
                                 setPosition(0);
-                                // handleBet(position);
+                                handleBet(position);
                               }}
                             >
                               1-100
@@ -98,7 +131,7 @@ const Intro = () => {
                               className="bg-blue-500 px-4 py-2 text-white rounded-full"
                               onClick={() => {
                                 setPosition(1);
-                                // handleBet(position);
+                                handleBet(position);
                               }}
                             >
                               101-1000
@@ -110,7 +143,7 @@ const Intro = () => {
                               className="bg-blue-500 px-4 py-2 text-white rounded-full"
                               onClick={() => {
                                 setPosition(2);
-                                // handleBet(position);
+                                handleBet(position);
                               }}
                             >
                               1001-5000
@@ -122,7 +155,7 @@ const Intro = () => {
                               className="bg-blue-500 px-4 py-2 text-white rounded-full"
                               onClick={() => {
                                 setPosition(3);
-                                // handleBet(position);
+                                handleBet(position);
                               }}
                             >
                               5001-10000
@@ -131,12 +164,29 @@ const Intro = () => {
                               className="bg-blue-500 px-4 py-2 text-white rounded-full"
                               onClick={() => {
                                 setPosition(4);
-                                // handleBet(position);
+                                handleBet(position);
                               }}
                             >
                               10001-∞
                             </button>
                           </div>
+                        </div>
+                        <div className="items-center text-center pt-20">
+                        <p className="text-white "> admin only</p>
+                          <input
+                            type="text"
+                            placeholder="Enter YouTube ID"
+                            value={inputValue}
+                            onChange={handleInputChange}
+                            className="border px-2 py-1"
+                          />
+                          <button
+                            onClick={handleSubmit}
+                            className="bg-blue-500 px-4 py-2 text-white ml-2"
+                          >
+                            Submit
+                          </button>
+                          
                         </div>
                       </>
                     )}
